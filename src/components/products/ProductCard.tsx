@@ -5,7 +5,7 @@ import { Button } from '../ui/button'
 import { AspectRatio } from '../ui/aspect-ratio'
 import { formatCurrency } from '@/lib/utils'
 
-const ProductCard = ({ products }: { products: Product[] }) => {
+export const ProductCard = ({ products }: { products: Product[] }) => {
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
             {products.map((product) => (
@@ -56,5 +56,3 @@ const ProductCard = ({ products }: { products: Product[] }) => {
         </div>
     )
 }
-
-export default ProductCard

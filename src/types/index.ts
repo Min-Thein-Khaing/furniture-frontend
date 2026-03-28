@@ -46,3 +46,26 @@ export type filterList = {
   types: types[];
   categories: categories[];
 }
+
+export type user = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  email: string;
+  imageUrl: string;
+}
+
+export type cart = {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  image: {
+    id: string;
+    name: string;
+    url: string;
+  };
+  category: string;
+  subcategory: string;
+}

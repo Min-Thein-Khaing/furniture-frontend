@@ -1,4 +1,3 @@
-import React from 'react'
 import { Checkbox } from "@/components/ui/checkbox"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { filterList } from '@/data/images/products'
@@ -29,9 +28,9 @@ const FilterProduct = () => {
     }
 
     return (
-        <form className='min-h-screen' onSubmit={handleSubmit(onSubmit)}>
+        <form className='min-h-screen mx-5 lg:mx-0' onSubmit={handleSubmit(onSubmit)}>
             {/* --- Section 1: Categories --- */}
-            <div className='mb-10'>
+            <div className='mb-10 '>
                 <h1 className='lg:text-2xl text-xl font-bold text-[#056152] mb-6'>Furniture-Made-By</h1>
                 <Controller
                     name="categories"

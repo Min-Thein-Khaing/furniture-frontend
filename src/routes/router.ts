@@ -4,6 +4,20 @@ import { createBrowserRouter } from "react-router";
 
 export const router = createBrowserRouter([
   {
+    path: "/login",
+    lazy: async () => {
+      const { default: Login } = await import("@/pages/Auth/Login");
+      return { Component: Login };
+    },
+  },
+  {
+    path: "/register",
+    lazy: async () => {
+      const { default: Register } = await import("@/pages/Auth/Register");
+      return { Component: Register };
+    },
+  },
+  {
     path: "/",
     Component: RouteLayout,
     ErrorBoundary: NotFound,

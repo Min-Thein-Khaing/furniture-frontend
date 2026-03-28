@@ -5,7 +5,6 @@ import {
   SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -48,13 +47,19 @@ export const MobileNavigation: FC<MainNavProps> = ({ items }) => {
   return (
     <div className="lg:hidden p-2">
       <Sheet>
-        <SheetTrigger>
+        <SheetTrigger asChild>
           <Button variant={"ghost"} size={"icon"}>
             <Menu />
-            <p className="sr-only">toggle button</p>
+            <span className="sr-only">toggle button</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Navigation Menu</SheetTitle>
+            <SheetDescription>
+              Browse our products and categories through the side navigation.
+            </SheetDescription>
+          </SheetHeader>
           <SheetClose asChild>
             <Link to="/" className="flex gap-1 p-3 items-center border-b-2">
               <Icons.logo className="size-6" />

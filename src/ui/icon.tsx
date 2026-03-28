@@ -1,4 +1,5 @@
 import { HomeIcon } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
 
 export const Icons = {
   //that is hero icon
@@ -21,6 +22,7 @@ export const Icons = {
     </svg>
   ),
   //lucide icon
-  home : HomeIcon
+  home : HomeIcon,
+  google : <FcGoogle />
 
 };

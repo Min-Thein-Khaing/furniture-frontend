@@ -53,7 +53,7 @@ export const Carousal = ({products}: Props) => {
                       <p className="text-[10px] md:text-xs text-[#056152]/70 line-clamp-2">
                         {product.description.length > 55 ? product.description.slice(0, 55) + "..." : product.description}
                       </p>
-                      <Link to={`/product/${product.id}`} className="text-[10px] md:text-xs font-bold text-[#056152] mt-1 text-left hover:underline">
+                      <Link to={`/products/${product.id}`} className="text-[10px] md:text-xs font-bold text-[#056152] mt-1 text-left hover:underline">
                         Read more
                       </Link>
                     </div>

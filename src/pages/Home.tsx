@@ -4,7 +4,8 @@ import Carousal from "@/components/carousal";
 import { products } from "@/data/images/products";
 import { posts } from "@/data/images/posts";
 import BlogCard from "@/components/blogs/BlogCard";
-import ProductCard from "@/components/products/productCard";
+import { ProductCard } from "@/components/products/ProductCard";
+
 
 function Home() {
   const Title = ({title,herf,sideText}: {title:string,herf:string,sideText:string}) => {
