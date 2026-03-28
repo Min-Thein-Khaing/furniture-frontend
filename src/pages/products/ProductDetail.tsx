@@ -15,11 +15,11 @@ import { toast } from 'sonner'
 
 import { AccordionItem, AccordionTrigger,Accordion, AccordionContent } from '@/components/ui/accordion'
 
-const productFormSchema = z.object({
+export const productFormSchema = z.object({
     quantity: z.number().min(1),
 })
 
-type ProductFormValues = z.infer<typeof productFormSchema>
+export type ProductFormValues = z.infer<typeof productFormSchema>
 
 const ProductDetail = () => {
     const { id } = useParams()

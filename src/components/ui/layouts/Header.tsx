@@ -4,6 +4,7 @@ import { MobileNavigation } from "./MobileNavigation";
 import { ModeToggle } from "@/components/mode-toggle";
 import AuthDropDown from "@/pages/Auth/AuthDropDown";
 import { User } from "@/data/images/user";
+import CardSheet from "@/pages/products/CardSheet";
 
 function Header() {
   return (
@@ -12,6 +13,7 @@ function Header() {
         <MainNavigation items={siteConfig.mainNav} />
         <MobileNavigation items={siteConfig.mainNav} />
         <div className="flex items-center justify-end flex-1 gap-2 lg:mr-0 mr-3">
+          <CardSheet />
           <ModeToggle />
           <AuthDropDown users={User} />
         </div>
