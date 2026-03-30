@@ -1,10 +1,13 @@
 import NotFound from "@/pages/404";
 import RouteLayout from "@/pages/RouteLayout";
+import { homeLoader } from "@/router/loader";
 import { createBrowserRouter } from "react-router";
+import { loginAction } from "@/router/action";
 
 export const router = createBrowserRouter([
   {
     path: "/login",
+    action:loginAction,
     lazy: async () => {
       const { default: Login } = await import("@/pages/Auth/Login");
       return { Component: Login };
@@ -24,9 +27,10 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
+       loader:homeLoader,
         lazy: async () => {
-          const { default: Home } = await import("@/pages/Home");
-          return { Component: Home };
+          const { default: Home} = await import("@/pages/Home");
+          return { Component: Home   };
         },
       },
       {

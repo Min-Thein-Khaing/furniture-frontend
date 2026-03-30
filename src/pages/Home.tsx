@@ -1,5 +1,5 @@
 import Couch from "@/data/images/couch.png";
-import { Link } from "react-router";
+import { Link, useNavigation } from "react-router";
 import Carousal from "@/components/carousal";
 import { products } from "@/data/images/products";
 import { posts } from "@/data/images/posts";
@@ -7,15 +7,16 @@ import BlogCard from "@/components/blogs/BlogCard";
 import { ProductCard } from "@/components/products/ProductCard";
 
 
+const Title = ({title,herf,sideText}: {title:string,herf:string,sideText:string}) => {
+  return (
+    <div className="flex items-center justify-between">
+      <h1 className="text-xl text-[#056152] font-bold">{title}</h1>
+      <Link to={herf} className="text-sm hover:underline hover:underline-offset-2 text-[#056152]">{sideText}</Link>
+    </div>
+  )
+}
 function Home() {
-  const Title = ({title,herf,sideText}: {title:string,herf:string,sideText:string}) => {
-    return (
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl text-[#056152] font-bold">{title}</h1>
-        <Link to={herf} className="text-sm hover:underline hover:underline-offset-2 text-[#056152]">{sideText}</Link>
-      </div>
-    )
-  }
+    
   const samplePost = posts.slice(0,3);
   const sampleProduct = products.slice(0,4);
   return (

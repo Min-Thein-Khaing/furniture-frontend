@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/Auth/login-form"
+import { LoginForm } from "@/components/Auth/components/login-form"
 import { Icons } from "@/ui/icon"
 import { GalleryVerticalEnd, Sheet } from "lucide-react"
 import loginImg from "@/data/images/house.webp"

@@ -1,4 +1,4 @@
-import { SignupForm } from '@/components/Auth/signup-form'
+import { SignupForm } from '@/components/Auth/components/signup-form'
 import { Icons } from '@/ui/icon'
 import React from 'react'
 import loginImg from "@/data/images/house.webp"

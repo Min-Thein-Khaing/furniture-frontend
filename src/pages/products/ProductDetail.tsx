@@ -7,13 +7,13 @@ import Rating from './Rating'
 import { products } from '@/data/images/products'
 import { formatCurrency, cn } from '@/lib/utils'
 import Addwhitlist from './Addwhitlist'
-import { ProductCard } from '@/components/products/productCard'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
 import { AccordionItem, AccordionTrigger,Accordion, AccordionContent } from '@/components/ui/accordion'
+import { ProductCard } from '@/components/products/ProductCard'
 
 export const productFormSchema = z.object({
     quantity: z.number().min(1),
