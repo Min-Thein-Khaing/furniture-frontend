@@ -78,12 +78,12 @@ type formInputType = z.infer<typeof formInputProps>
     <footer className="w-full border-t bg-background mt-auto">
       <div className="container px-4 py-12 mx-auto">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4 lg:grid-cols-6">
-          <p className='col-span-1'>
+          <div className='col-span-1'>
             <Link to="/" className="flex gap-1 items-center">
                     <Icons.logo className="size-6" />
                     <p className="font-medium">Furniture</p>
                   </Link>
-          </p>
+          </div>
           {footerData.footerNav.map((section) => (
             <div key={section.title} className="flex flex-col gap-4">
               <h4 className="text-sm font-semibold tracking-wider uppercase">

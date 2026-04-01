@@ -3,10 +3,13 @@ import type { user } from '@/types'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { Link } from 'react-router'
+import { Form, Link, useNavigation, useSubmit } from 'react-router'
 import { User, ShoppingCart, Heart, LogOut, LayoutDashboardIcon, CreditCard, Settings } from 'lucide-react'
 
 const AuthDropDown = ({ users }: { users: user }) => {
+    const navigation = useNavigation();
+    const isSubmitting = navigation.state === "submitting";
+
     return (
         !users ? (
             <Link to="/login">
@@ -68,10 +71,16 @@ const AuthDropDown = ({ users }: { users: user }) => {
                         <DropdownMenuSeparator />
 
                         <DropdownMenuItem asChild>
-                            <Link to="/login">
+                            {/* <Link to="/login">
                                 <LogOut className="mr-2 h-4 w-4" />
                                 <span>Log out</span>
-                            </Link>
+                            </Link> */}
+                            <Form action="/logout" method="post" className="w-full ">
+                                <Button disabled={isSubmitting} type="submit" variant="ghost" className=''>
+                                    <LogOut className="mr-2 h-4 w-4 " />
+                                    <span>{isSubmitting ? "Logging out..." : "Log out"}</span>
+                                </Button>
+                            </Form>
                         </DropdownMenuItem>
                     </DropdownMenuGroup>
                 </DropdownMenuContent>
