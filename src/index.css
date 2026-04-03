@@ -4,6 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -120,4 +121,25 @@
   body {
     @apply bg-background text-foreground;
   }
+ 
+}
+
+
+@theme {
+  /* ၁။ Animation အတွက် Keyframes ကို သတ်မှတ်ပါ */
+  @keyframes progress-grow {
+    0% {
+      transform: scaleX(0);
+    }
+    100% {
+      transform: scaleX(1);
+    }
+  }
+
+  /* ၂။ Animation Utility တစ်ခုအနေနဲ့ သတ်မှတ်ပါ */
+  /* --animate- ကနေ စရပါမယ်၊ ဒါမှ animate-progress-bar ဆိုတဲ့ class ရမှာပါ */
+  --animate-progress-bar: progress-grow 2s ease-out infinite;
+}
+.animate-progress-bar {
+  transform-origin: left; /* ဒါက အမြဲတမ်း ဘယ်ဘက်ကပဲ စထွက်အောင် လုပ်ပေးတာပါ */
 }

@@ -8,6 +8,7 @@ interface Props {
     posts: Post[];
 }
 const BlogCard = ({ posts }: Props) => {
+    console.log(posts)
 
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8'>
@@ -20,6 +21,8 @@ const BlogCard = ({ posts }: Props) => {
                         <img
                             src={post.image}
                             alt={post.title}
+                            loading='lazy'
+                            decoding='async'
                             className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
                         />
                         <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300" />
@@ -37,7 +40,7 @@ const BlogCard = ({ posts }: Props) => {
                             </div>
                             <div className="flex flex-col items-end">
                                 <span className='text-[10px] text-[#056152]/50 uppercase tracking-widest'>Author</span>
-                                <span className='text-xs font-semibold text-[#056152]'>{post.author}</span>
+                                <span className='text-xs font-semibold text-[#056152]'>{post.user.fullName}</span>
                             </div>
                         </div>
                     </div>

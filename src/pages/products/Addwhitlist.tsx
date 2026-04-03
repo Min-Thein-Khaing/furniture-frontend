@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { HeartIcon } from 'lucide-react'
 
 interface FavouriteProp extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  productId: string,
+  productId: number,
   rating: number,
   isFavourite: boolean
   className?: string

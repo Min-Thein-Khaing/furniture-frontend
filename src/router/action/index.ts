@@ -1,6 +1,8 @@
 import { api, authApi } from "@/api";
+import { useAuthStore } from "@/store/useAuthStore";
 import { AxiosError } from "axios";
-import { redirect, type ActionFunctionArgs } from "react-router";
+import { type ActionFunctionArgs } from "react-router";
+import { redirect } from "react-router-dom";
 import { toast } from "sonner";
 
 export const loginAction = async ({ request }: ActionFunctionArgs) => {
@@ -12,7 +14,7 @@ export const loginAction = async ({ request }: ActionFunctionArgs) => {
     try {
         const res = await authApi.post("/login", authForm);
         if (res.status !== 200) {
-            console.log({ error: res.data});
+            console.log({ error: res.data });
         }
         const redirectTo = new URL(request.url).searchParams.get("redirect") || "/";
         toast.success("Login successful", { position: "top-right" });
@@ -20,22 +22,22 @@ export const loginAction = async ({ request }: ActionFunctionArgs) => {
     } catch (error) {
         let errorMessage = "";
         if (error instanceof AxiosError) {
-            errorMessage= error.response?.data?.message || "Login failed";
+            errorMessage = error.response?.data?.message || "Login failed";
             toast.error("Invalid credentials", { position: "top-right" });
         }
         return {
-            message : errorMessage,
+            message: errorMessage,
         }
-        
+
     }
 
 }
 
 export const logoutAction = async () => {
     try {
-       await api.post("/logout");
-       
-       toast.success("Logout successfully", { position: "top-right" });
+        await api.post("/logout");
+
+        toast.success("Logout successfully", { position: "top-right" });
         return redirect("/login");
     } catch (error) {
         if (error instanceof AxiosError) {
@@ -46,3 +48,115 @@ export const logoutAction = async () => {
 }
 
 
+
+export const registerAction = async ({ request }: ActionFunctionArgs) => {
+    const authStore = useAuthStore.getState();
+    const formData = await request.formData();
+    const credentials = { phone: formData.get("phone") };
+
+    try {
+        const res = await authApi.post("/register", credentials);
+
+        if (res.data && (res.status === 200 || res.status === 201)) {
+            // Log the ENTIRE response to see exactly what the backend sends
+
+            // Adjust these depending on what you see in the console (e.g., res.data.verifyToken)
+            const phone = res.data?.data?.phone || res.data?.phone || credentials.phone;
+            // ✨ Extract rememberToken based on your console log!
+            const token =  res.data?.data?.rememberToken
+
+            console.log("Extracted Phone:", phone, "Extracted Token:", token);
+
+            authStore.setAuth(phone as string, token as string, "otp");
+
+            toast.success('Success! Redirecting to OTP...');
+            return redirect("/register/otp");
+        }
+
+        return { error: "Registration failed: Unexpected response" };
+
+    } catch (error: any) {
+        let errorMessage = "Something went wrong";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage);
+        }
+        return { error: errorMessage };
+    }
+};
+
+export const otpAction = async ({ request }: ActionFunctionArgs) => {
+    const authStore = useAuthStore.getState();
+    const formData = await request.formData();
+
+    // We send verifyToken as you requested, using the token from our store
+    const credentials = {
+        phone: authStore.phone,
+        otp: formData.get("otp"),
+        rememberToken: authStore.token
+    };
+    console.log("OTP Submit Credentials:", credentials);
+
+    try {
+        const res = await authApi.post("/verify-otp", credentials)
+
+        if (res.status === 200 || res.status === 201) {
+            toast.success("Otp successful", { position: "top-right" });
+
+            const phone = res.data?.data?.phone || res.data?.phone || authStore.phone;
+            const token = 
+    res.data?.data?.rememberToken || 
+    
+    authStore.token;
+
+            authStore.setAuth(phone as string, token as string, "confirm");
+
+            // 🚨 We MUST use 'return redirect()' here otherwise the page will NOT change!
+            return redirect("/register/confirm-password");
+        }
+
+        toast.error("Otp failed", { position: "top-right" });
+        return { message: "Otp failed" };
+
+    } catch (error) {
+        let errorMessage = "otp failed";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return {
+            message: errorMessage,
+        }
+    }
+}
+
+export const confirmAction = async ({ request }: ActionFunctionArgs) => {
+    const authStore = useAuthStore.getState();
+    const formData = await request.formData();
+    const credentials = {
+        firstName: "Mg Mg", // ဒါမျိုး ထည့်ပေးဖို့ လိုပါတယ်
+        lastName: "Kyaw",
+        phone: authStore.phone, // 09 ပြန်ပေါင်းပေးဖို့ လိုမလို စစ်ပါ
+        password: formData.get("password"),
+        rememberToken: authStore.token
+    };
+    console.log("Confirm Password Credentials:", credentials);
+
+    try {
+
+        const data = await authApi.post("/confirm-password", credentials)
+        console.log(data)
+        toast.success("Password confirmed successfully", { position: "top-right" });
+        authStore.clearAuth();
+        return redirect("/login");
+    } catch (error) {
+        let errorMessage = "Password confirmation failed";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return {
+            message: errorMessage,
+        }
+    }
+}

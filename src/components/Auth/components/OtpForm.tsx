@@ -18,11 +18,11 @@ const formSchema = z.object({
     message: "Your one-time password must be 6 characters.",
   }),
 });
-const submit = useSubmit()
- const navigation = useNavigation();
-  const isSubmitting = navigation.state === "submitting";
-  const actionData = useActionData();
 const OtpForm = () => {
+  const submit = useSubmit()
+  const navigation = useNavigation();
+   const isSubmitting = navigation.state === "submitting";
+   const actionData = useActionData();
   // 2. Initialize the form
   const {
     control,
@@ -37,7 +37,7 @@ const OtpForm = () => {
 
   // 3. Define the submit handler
   const onSubmit = (data: z.infer<typeof formSchema>) => {
-    submit(data,{method:"post",action:"/register/verify"})
+    submit(data,{method:"post",action:"/register/otp"})
     // Add your verification logic here
   };
 

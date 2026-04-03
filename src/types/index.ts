@@ -9,22 +9,29 @@ export interface NavItemWithChildren extends NavItem {
 }
 export type MainNavItem = NavItemWithChildren;
 
+export type ProductImage = {
+  id: number;   // Changed from string to number based on your data output
+  path: string;
+};
+
 export type Product = {
-  id: string;
+  id: number;   // Changed from string to number based on your data output
   name: string;
   description: string;
-  price: number;
-  images: Array<string>;
+  price: string; // Note: Your data shows "250" as a string in quotes
+  images: ProductImage[]; // This MUST be an array
   categoryId: string;
   rating: number;
   inventory: number;
   status: string;
   discount: number;
-}
+};
 
 export type Post = {
-  id: string;
-  author: string;
+  id: number;
+  user: {
+    fullName:string
+  };
   title: string;
   content: string;
   image: string;
@@ -69,3 +76,5 @@ export type cart = {
   category: string;
   subcategory: string;
 }
+
+export type Status = "otp" | "confirm" | "verify" | "reset" | "none";

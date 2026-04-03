@@ -39,7 +39,9 @@ export const Carousal = ({products}: Props) => {
                     {/* Image Section */}
                     <div className="w-20 h-20 md:w-24 md:h-24 flex-shrink-0 overflow-hidden rounded-lg bg-muted/30">
                       <img 
-                        src={product.images[0]} 
+                        src={product.images[0]?.path} 
+                        loading="lazy"
+                        decoding="async"
                         alt={product.name} 
                         className="w-full h-full object-contain hover:scale-110 transition-transform duration-500"
                       />

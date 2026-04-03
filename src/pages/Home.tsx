@@ -1,10 +1,12 @@
 import Couch from "@/data/images/couch.png";
-import { Link, useNavigation } from "react-router";
+import { Link, useLoaderData, useNavigation } from "react-router";
 import Carousal from "@/components/carousal";
 import { products } from "@/data/images/products";
 import { posts } from "@/data/images/posts";
 import BlogCard from "@/components/blogs/BlogCard";
 import { ProductCard } from "@/components/products/ProductCard";
+import { useQuery } from "@tanstack/react-query";
+import { postQuery, productQuery } from "@/api/query";
 
 
 const Title = ({title,herf,sideText}: {title:string,herf:string,sideText:string}) => {
@@ -16,9 +18,21 @@ const Title = ({title,herf,sideText}: {title:string,herf:string,sideText:string}
   )
 }
 function Home() {
-    
-  const samplePost = posts.slice(0,3);
-  const sampleProduct = products.slice(0,4);
+  
+  const {data:productsData , isLoading : productLoading , isError : productIsError ,error : productError ,refetch : productRefetch} = useQuery(productQuery("limit=8"))
+  console.log(productsData)
+  const {data:postsData ,isLoading : postLoading , isError : postIsError ,error : postError ,refetch : postRefetch} = useQuery(postQuery("limit=3"))
+  console.log(postsData)
+  if(productLoading || postLoading){
+    return <div className="w-full min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#056152]"></div>
+    </div>
+  }
+  if(productIsError || postIsError){
+    return <div className="w-full min-h-screen flex items-center justify-center">
+      <div className="text-red-500">Error: {productError?.message || postError?.message}</div>
+    </div>
+  }
   return (
     <div className="w-full min-h-screen">
       <div className="container px-5 lg:px-0 mx-auto font-medium grid grid-cols-1  items-center  md:grid-cols-3 lg:grid-cols-3 gap-8  ">
@@ -64,18 +78,18 @@ function Home() {
 
         {/* Featured Products moved inside the hero grid for visibility */}
         <div className="col-span-1 md:col-span-3   mt-10">
-          <Carousal products={products} />
+          <Carousal products={productsData.data} />
         </div>
         <div className="col-span-1 md:col-span-3   mt-16 pb-20">
             <Title title="Features Products" herf="/products" sideText="View All Products" />
             <div className="mt-8">
-              <ProductCard products={sampleProduct} />
+              <ProductCard products={productsData.data} />
             </div>
         </div>
         <div className="col-span-1 md:col-span-3   mt-16 pb-20">
             <Title title="Recent Blog" herf="/blogs" sideText="View All Blogs" />
             <div className="mt-8">
-              <BlogCard posts={samplePost} />
+              <BlogCard posts={postsData.data} />
             </div>
         </div>
       </div>

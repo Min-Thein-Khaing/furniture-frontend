@@ -1,9 +1,10 @@
 import { SignupForm } from '@/components/Auth/components/signup-form';
 import NotFound from "@/pages/404";
 import RouteLayout from "@/pages/RouteLayout";
-import { homeLoader, loginLoader } from "@/router/loader";
-import { createBrowserRouter, redirect } from "react-router";
-import { loginAction, logoutAction } from "@/router/action";
+import { confirmLoader, homeLoader, loginLoader, otpLoader } from "@/router/loader";
+import { createBrowserRouter } from "react-router";
+import {redirect} from "react-router-dom"
+import { confirmAction, loginAction, logoutAction, otpAction, registerAction } from "@/router/action";
 import AuthLayout from "@/pages/Auth/AuthLayout";
 
 export const router = createBrowserRouter([
@@ -22,6 +23,8 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
+        loader: loginLoader,
+        action: registerAction,
         lazy: async () => {
           const { default: Signup } = await import("@/pages/Auth/SignUp");
           return { Component: Signup };
@@ -29,12 +32,16 @@ export const router = createBrowserRouter([
       },
       {
         path: "otp",
+        loader:otpLoader,
+        action:otpAction,
         lazy: async () => {
           const { default: OtpInput} = await import("@/pages/Auth/OtpInput");
           return { Component: OtpInput };
         },
       },{
         path: "confirm-password",
+        loader:confirmLoader,
+        action:confirmAction,
         lazy: async () => {
           const { default: ConfirmPassword } = await import("@/pages/Auth/ConfirmPassword");
           return { Component: ConfirmPassword };
@@ -49,7 +56,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        loader: homeLoader,
+        // loader: homeLoader,
 
         lazy: async () => {
           const { default: Home } = await import("@/pages/Home");

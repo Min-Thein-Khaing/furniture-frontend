@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Heart, Minus, Plus, ShoppingCart, Star } from 'lucide-react'
-import { Link, useParams } from 'react-router'
+import { Link, useLoaderData, useParams } from 'react-router'
 import { Separator } from '@/components/ui/separator'
 import Rating from './Rating'
 import { products } from '@/data/images/products'
@@ -12,8 +12,9 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { toast } from 'sonner'
 
-import { AccordionItem, AccordionTrigger,Accordion, AccordionContent } from '@/components/ui/accordion'
+import { AccordionItem, AccordionTrigger, Accordion, AccordionContent } from '@/components/ui/accordion'
 import { ProductCard } from '@/components/products/ProductCard'
+import type { Product } from '@/types'
 
 export const productFormSchema = z.object({
     quantity: z.number().min(1),
@@ -23,8 +24,10 @@ export type ProductFormValues = z.infer<typeof productFormSchema>
 
 const ProductDetail = () => {
     const { id } = useParams()
-    const product = products.find((p) => p.id === id)
-    const [mainImage, setMainImage] = useState(product?.images[0])
+    const { productsData } = useLoaderData() as { productsData: Product[] }
+    console.log(productsData)
+    const product = productsData.find((p) => p.id === Number(id))
+    const [mainImage, setMainImage] = useState(product?.images[0].path)
     const [isFavorite, setIsFavorite] = useState(false)
 
     const form = useForm<ProductFormValues>({
@@ -34,17 +37,17 @@ const ProductDetail = () => {
         },
     })
 
-    const { control, setValue, watch, handleSubmit,formState:{errors},reset } = form
+    const { control, setValue, watch, handleSubmit, formState: { errors }, reset } = form
     const quantity = watch('quantity')
-    const onSubmit = (data:ProductFormValues)=>{
+    const onSubmit = (data: ProductFormValues) => {
         console.log(data)
-        toast.success('Product added to cart',{position : 'top-right'})
+        toast.success('Product added to cart', { position: 'top-right' })
         reset()
     }
 
     // random show 4 product
-    const relatedProducts = products
-        .filter((p) => p.id !== product?.id && p.categoryId === product?.categoryId)
+    const relatedProducts = productsData
+        .filter((p) => (p.id) !== Number(id) && p.categoryId === product?.categoryId)
         .sort(() => 0.5 - Math.random())
         .slice(0, 4);
 
@@ -79,21 +82,21 @@ const ProductDetail = () => {
                         {product.images.map((img, index) => (
                             <button
                                 key={index}
-                                onClick={() => setMainImage(img)}
+                                onClick={() => setMainImage(img.path)}
                                 className={cn(
                                     'size-20 lg:size-24 shrink-0 rounded-xl overflow-hidden border-2 transition-all p-2 bg-gray-50',
-                                    mainImage === img ? 'border-[#056152] ring-2 ring-[#056152]/10 bg-white' : 'border-transparent hover:border-gray-200'
+                                    mainImage === img.path ? 'border-[#056152] ring-2 ring-[#056152]/10 bg-white' : 'border-transparent hover:border-gray-200'
                                 )}
                             >
-                                <img src={img} alt="" className='w-full h-full object-contain' />
+                                <img src={img.path} alt="" className='w-full h-full object-contain' />
                             </button>
                         ))}
                     </div>
                 </div>
 
                 {/* Info Section with integrated Form */}
-                <form 
-                    onSubmit={handleSubmit(onSubmit)} 
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
                     className='flex flex-col py-2'
                 >
                     <div className='mb-6'>
@@ -192,7 +195,7 @@ const ProductDetail = () => {
                             type="submit"
                             variant="outline"
                             disabled={isOutOfStock || product.status === "sold"}
-                           
+
                             className='flex-1 h-16 text-lg font-bold rounded-xl border-2 border-gray-200 hover:bg-gray-50 transition-all active:scale-95 group gap-2'
                         >
                             <ShoppingCart className='size-5 group-hover:scale-110 transition-transform' />

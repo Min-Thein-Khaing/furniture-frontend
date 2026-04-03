@@ -8,7 +8,7 @@ import { formatCurrency } from '@/lib/utils'
 export const ProductCard = ({ products }: { products: Product[] }) => {
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
-            {products.map((product) => (
+            {products.slice(0,4).map((product) => (
                 <div
                     key={product.id}
                     className='group flex flex-col bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100'
@@ -17,7 +17,7 @@ export const ProductCard = ({ products }: { products: Product[] }) => {
                     <Link to={`/products/${product.id}`} className="block w-full overflow-hidden">
                         <AspectRatio ratio={1 / 1} className="bg-muted">
                             <img
-                                src={product.images[0]}
+                                src={product.images[0]?.path}
                                 alt={product.name}
                                 className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
                             />
