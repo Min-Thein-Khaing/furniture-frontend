@@ -1,11 +1,12 @@
 import { SignupForm } from '@/components/Auth/components/signup-form';
 import NotFound from "@/pages/404";
 import RouteLayout from "@/pages/RouteLayout";
-import { confirmLoader, homeLoader, loginLoader, otpLoader } from "@/router/loader";
+import { confirmLoader, homeLoader, loginLoader, onePostLoader, otpLoader, postInfiniteLoader, productInfiniteLoader, productOneDetailLoader } from "@/router/loader";
 import { createBrowserRouter } from "react-router";
 import {redirect} from "react-router-dom"
 import { confirmAction, loginAction, logoutAction, otpAction, registerAction } from "@/router/action";
 import AuthLayout from "@/pages/Auth/AuthLayout";
+import { postInfiniteQuery } from '@/api/query';
 
 export const router = createBrowserRouter([
   {
@@ -56,7 +57,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        // loader: homeLoader,
+        loader: homeLoader,
 
         lazy: async () => {
           const { default: Home } = await import("@/pages/Home");
@@ -80,6 +81,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
+            loader:productInfiniteLoader,
             lazy: async () => {
               const { default: Product } =
                 await import("@/pages/products/Product");
@@ -88,6 +90,7 @@ export const router = createBrowserRouter([
           },
           {
             path: ":id",
+            loader:productOneDetailLoader,
             lazy: async () => {
               const { default: ProductDetail } =
                 await import("@/pages/products/ProductDetail");
@@ -98,6 +101,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "blogs",
+        
         // BlogLayout ကို အပေါ်ကနေ အုပ်ထားမယ်
         lazy: async () => {
           const { default: BlogLayout } =
@@ -107,6 +111,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true, // /blogs လို့ ခေါ်ရင် ဒီကောင် ပေါ်မယ်
+            loader:postInfiniteLoader,
             lazy: async () => {
               const { default: Blog } = await import("@/pages/blogs/Blog");
               return { Component: Blog };
@@ -114,6 +119,7 @@ export const router = createBrowserRouter([
           },
           {
             path: ":id", // /blogs/123 လို့ ခေါ်ရင် ဒီကောင် ပေါ်မယ်
+            loader:onePostLoader,
             lazy: async () => {
               const { default: BlogDetail } =
                 await import("@/pages/blogs/BlogDetail");

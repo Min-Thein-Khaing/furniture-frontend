@@ -15,6 +15,8 @@ import { toast } from 'sonner'
 import { AccordionItem, AccordionTrigger, Accordion, AccordionContent } from '@/components/ui/accordion'
 import { ProductCard } from '@/components/products/ProductCard'
 import type { Product } from '@/types'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { productQuery, proudctOneDetailQuery } from '@/api/query'
 
 export const productFormSchema = z.object({
     quantity: z.number().min(1),
@@ -24,10 +26,13 @@ export type ProductFormValues = z.infer<typeof productFormSchema>
 
 const ProductDetail = () => {
     const { id } = useParams()
-    const { productsData } = useLoaderData() as { productsData: Product[] }
-    console.log(productsData)
-    const product = productsData.find((p) => p.id === Number(id))
-    const [mainImage, setMainImage] = useState(product?.images[0].path)
+    const {data:productsData} = useSuspenseQuery(productQuery("limit=100"))
+    const {data:oneProductData} = useSuspenseQuery(proudctOneDetailQuery(Number(id)))
+    console.log("product many",productsData)
+    console.log("product one",oneProductData)
+    console.log("id",id)
+
+    const [mainImage, setMainImage] = useState(oneProductData?.data?.images[0].path)
     const [isFavorite, setIsFavorite] = useState(false)
 
     const form = useForm<ProductFormValues>({
@@ -46,15 +51,15 @@ const ProductDetail = () => {
     }
 
     // random show 4 product
-    const relatedProducts = productsData
-        .filter((p) => (p.id) !== Number(id) && p.categoryId === product?.categoryId)
+    const relatedProducts = productsData?.data
+        .filter((p:any) => (p.id) !== Number(id) )
         .sort(() => 0.5 - Math.random())
         .slice(0, 4);
 
-    if (!product) return <div className='container mx-auto mt-10 text-center font-bold text-2xl'>Product not found</div>
+    if (!oneProductData) return <div className='container mx-auto mt-10 text-center font-bold text-2xl'>Product not found</div>
 
-    const label = product.inventory > 1 ? 'items' : 'item'
-    const isOutOfStock = product.inventory <= 0
+    const label = oneProductData.data.inventory > 1 ? 'items' : 'item'
+    const isOutOfStock = oneProductData.data.inventory <= 0
 
     return (
         <div className='container mx-auto mt-10 px-4 lg:px-0 mb-20'>
@@ -73,13 +78,13 @@ const ProductDetail = () => {
                     <div className='aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-4 lg:p-8'>
                         <img
                             src={mainImage}
-                            alt={product.name}
+                            alt={oneProductData.data.name}
                             className='max-h-full max-w-full object-contain hover:scale-105 transition-transform duration-500 cursor-zoom-in'
                         />
                     </div>
                     {/* Thumbnails */}
                     <div className='flex flex-col gap-4  pb-2 scrollbar-hide'>
-                        {product.images.map((img, index) => (
+                        {oneProductData.data.images.map((img:any, index:number) => (
                             <button
                                 key={index}
                                 onClick={() => setMainImage(img.path)}
@@ -101,19 +106,19 @@ const ProductDetail = () => {
                 >
                     <div className='mb-6'>
                         <div className='flex items-center gap-2 mb-4'>
-                            <Rating rating={product.rating} />
+                            <Rating rating={oneProductData.data.rating} />
                             <span className='text-xs font-semibold text-gray-400 uppercase tracking-wider'>| 12 Reviews</span>
                         </div>
-                        <h1 className='text-3xl lg:text-4xl font-extrabold text-[#056152] mb-4 tracking-tight'>{product.name}</h1>
+                        <h1 className='text-3xl lg:text-4xl font-extrabold text-[#056152] mb-4 tracking-tight'>{oneProductData.data.name}</h1>
                         <p className='text-3xl font-bold text-gray-900 mb-6'>
-                            {formatCurrency(product.price)}
+                            {formatCurrency(oneProductData.data.price)}
                         </p>
                         <Accordion type="single" collapsible defaultValue='item-1'>
                             <AccordionItem value="item-1">
                                 <AccordionTrigger className='font-medium text-[#056152] underline '>Description</AccordionTrigger>
                                 <AccordionContent>
                                     <p className='text-gray-600 leading-relaxed text-lg max-w-xl'>
-                                        {product.description}
+                                        {oneProductData.data.description}
                                     </p>
                                 </AccordionContent>
                             </AccordionItem>
@@ -131,11 +136,11 @@ const ProductDetail = () => {
                                     'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest border',
                                     isOutOfStock ? 'text-red-600 bg-red-50 border-red-100' : 'text-emerald-700 bg-emerald-50 border-emerald-100'
                                 )}>
-                                    {isOutOfStock ? 'Out of Stock' : `In Stock (${product.inventory} ${label})`}
+                                    {isOutOfStock ? 'Out of Stock' : `In Stock (${oneProductData.data.inventory} ${label})`}
                                 </div>
                             </div>
                             <div className=''>
-                                <Addwhitlist productId={product.id} rating={product.rating} isFavourite={isFavorite} />
+                                <Addwhitlist productId={oneProductData.data.id} rating={oneProductData.data.rating} isFavourite={isFavorite} />
                             </div>
                         </div>
 
@@ -146,7 +151,7 @@ const ProductDetail = () => {
                                     type="button"
                                     onClick={() => setValue('quantity', Math.max(1, quantity - 1))}
                                     className='p-3 hover:bg-gray-50 transition-colors border-r-2 disabled:opacity-30'
-                                    disabled={isOutOfStock || quantity <= 1 || product.status === "sold"}
+                                    disabled={isOutOfStock || quantity <= 1 || oneProductData.data.status === "INACTIVE"}
                                 >
                                     <Minus className='size-4 text-gray-600' />
                                 </button>
@@ -158,11 +163,11 @@ const ProductDetail = () => {
                                         <input
                                             {...field}
                                             type="number"
-                                            disabled={isOutOfStock || product.status === "sold"}
+                                            disabled={isOutOfStock || oneProductData.data.status === "INACTIVE"}
                                             onChange={(e) => {
                                                 const val = parseInt(e.target.value)
                                                 if (!isNaN(val)) {
-                                                    field.onChange(Math.min(product.inventory, Math.max(1, val)))
+                                                    field.onChange(Math.min(oneProductData.data.inventory, Math.max(1, val)))
                                                 }
                                             }}
                                             className='w-20 text-center font-bold text-gray-800 bg-transparent focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
@@ -172,9 +177,9 @@ const ProductDetail = () => {
 
                                 <button
                                     type="button"
-                                    onClick={() => setValue('quantity', Math.min(product.inventory, quantity + 1))}
+                                    onClick={() => setValue('quantity', Math.min(oneProductData.data.inventory, quantity + 1))}
                                     className='p-3 hover:bg-gray-50 transition-colors border-l-2 disabled:opacity-30'
-                                    disabled={isOutOfStock || quantity >= product.inventory || product.status === "sold"}
+                                    disabled={isOutOfStock || quantity >= oneProductData.data.inventory || oneProductData.data.status === "INACTIVE"}
                                 >
                                     <Plus className='size-4 text-gray-600' />
                                 </button>
@@ -186,7 +191,7 @@ const ProductDetail = () => {
                     <div className='flex flex-col sm:flex-row gap-4'>
                         <Button
                             type="button"
-                            disabled={isOutOfStock || product.status === "sold"}
+                            disabled={isOutOfStock || oneProductData.data.status === "INACTIVE"}
                             className='flex-1 h-16 text-lg font-bold bg-[#056152] hover:bg-[#044c41] rounded-xl shadow-lg shadow-[#056152]/10 transition-all active:scale-95'
                         >
                             Buy Now
@@ -194,7 +199,7 @@ const ProductDetail = () => {
                         <Button
                             type="submit"
                             variant="outline"
-                            disabled={isOutOfStock || product.status === "sold"}
+                            disabled={isOutOfStock || oneProductData.data.status === "INACTIVE"}
 
                             className='flex-1 h-16 text-lg font-bold rounded-xl border-2 border-gray-200 hover:bg-gray-50 transition-all active:scale-95 group gap-2'
                         >

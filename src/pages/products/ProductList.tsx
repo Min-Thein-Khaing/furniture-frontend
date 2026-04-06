@@ -5,7 +5,7 @@ import { AspectRatio } from '@/components/ui/aspect-ratio'
 import { formatCurrency } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
-const ProductList = ({products}: {products: Product[]}) => {
+const ProductList = ({ products }: { products: Product[] }) => {
     return (
         <div className='grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-8'>
             {products.map((product) => (
@@ -17,8 +17,9 @@ const ProductList = ({products}: {products: Product[]}) => {
                     <Link to={`/products/${product.id}`} className="block w-full overflow-hidden">
                         <AspectRatio ratio={1 / 1} className="bg-muted">
                             <img
-                                src={product.images[0]}
+                                src={product.images[0].path}
                                 alt={product.name}
+
                                 className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-105'
                             />
                             {/* Overlay Effect */}
@@ -41,7 +42,7 @@ const ProductList = ({products}: {products: Product[]}) => {
                         </Link>
 
 
-                        {product.status !== "sold" ? (
+                        {product.status !== "INACTIVE" ? (
                             <Button className='w-full mt-auto bg-[#056152] hover:bg-[#044a3e] text-white transition-colors'>
                                 Add to Cart
                             </Button>

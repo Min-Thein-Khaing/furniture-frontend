@@ -7,6 +7,8 @@ const ProgressBar = () => {
     const isFetching = useIsFetching() > 0;
 
     // Loading ဖြစ်နေမှသာ ဒီ Component ကို ပြမယ်
+    //idle ka data lae u pee twr p a chain ma load mr 
+    
     if (isFetching || navigation.state !== "idle") {
         return (
             <div className="fixed top-0  left-0 w-full h-1 z-[50]">

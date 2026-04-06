@@ -6,6 +6,7 @@ import { AspectRatio } from '../ui/aspect-ratio'
 import { formatCurrency } from '@/lib/utils'
 
 export const ProductCard = ({ products }: { products: Product[] }) => {
+    console.log(products)
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8'>
             {products.slice(0,4).map((product) => (
@@ -41,7 +42,7 @@ export const ProductCard = ({ products }: { products: Product[] }) => {
                         </Link>
 
 
-                        {product.status !== "sold" ? (
+                        {product.status !== "INACTIVE" ? (
                             <Button className='w-full mt-auto bg-[#056152] hover:bg-[#044a3e] text-white transition-colors'>
                                 Add to Cart
                             </Button>

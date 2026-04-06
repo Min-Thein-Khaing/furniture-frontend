@@ -5,7 +5,7 @@ import { products } from "@/data/images/products";
 import { posts } from "@/data/images/posts";
 import BlogCard from "@/components/blogs/BlogCard";
 import { ProductCard } from "@/components/products/ProductCard";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { postQuery, productQuery } from "@/api/query";
 
 
@@ -18,21 +18,27 @@ const Title = ({title,herf,sideText}: {title:string,herf:string,sideText:string}
   )
 }
 function Home() {
+  //1.const {productsData , postsData} = useLoaderData() as {productsData: any, postsData: any} this is using loader
+
+  //2.this is using loader and tanstack query
+  const {data:productsData} = useSuspenseQuery(productQuery("limit=8"))
+  const {data:postsData} = useSuspenseQuery(postQuery("limit=3"))
   
-  const {data:productsData , isLoading : productLoading , isError : productIsError ,error : productError ,refetch : productRefetch} = useQuery(productQuery("limit=8"))
-  console.log(productsData)
-  const {data:postsData ,isLoading : postLoading , isError : postIsError ,error : postError ,refetch : postRefetch} = useQuery(postQuery("limit=3"))
-  console.log(postsData)
-  if(productLoading || postLoading){
-    return <div className="w-full min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#056152]"></div>
-    </div>
-  }
-  if(productIsError || postIsError){
-    return <div className="w-full min-h-screen flex items-center justify-center">
-      <div className="text-red-500">Error: {productError?.message || postError?.message}</div>
-    </div>
-  }
+  //3.this is using tanstack query
+  // const {data:productsData , isLoading : productLoading , isError : productIsError ,error : productError ,refetch : productRefetch} = useQuery(productQuery("limit=8"))
+  // const {data:postsData ,isLoading : postLoading , isError : postIsError ,error : postError ,refetch : postRefetch} = useQuery(postQuery("limit=3"))
+
+  //loader and tanstack query using no need this 
+  // if(productLoading || postLoading){
+  //   return <div className="w-full min-h-screen flex items-center justify-center">
+  //     <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-[#056152]"></div>
+  //   </div>
+  // }
+  // if(productIsError || postIsError){
+  //   return <div className="w-full min-h-screen flex items-center justify-center">
+  //     <div className="text-red-500">Error: {productError?.message || postError?.message}</div>
+  //   </div>
+  // }
   return (
     <div className="w-full min-h-screen">
       <div className="container px-5 lg:px-0 mx-auto font-medium grid grid-cols-1  items-center  md:grid-cols-3 lg:grid-cols-3 gap-8  ">

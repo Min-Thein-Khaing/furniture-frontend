@@ -1,4 +1,4 @@
-export const shuffleArray = <T>(array: T[]): T[] => {
+export const shuffleArray = <T,>(array: T[]): T[] => {
   // မူရင်း Array ကို မထိခိုက်အောင် Copy အရင်ကူးပါတယ် (Immutability)
   const shuffled = [...array];
 

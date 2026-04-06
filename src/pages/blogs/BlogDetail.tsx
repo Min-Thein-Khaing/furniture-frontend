@@ -3,12 +3,16 @@ import { ChevronLeft } from 'lucide-react';
 import React from 'react';
 import { Link, useParams } from 'react-router';
 import RichTextRender from './RichTextRender';
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { onePostQuery, postQuery } from '@/api/query';
 
 const BlogDetail = () => {
   const { id } = useParams();
+  const {data:postsData} = useSuspenseQuery(postQuery("limit=6"))
+  const {data:onePostData} = useSuspenseQuery(onePostQuery(Number(id)))
 
   // ✅ FIX type (string → number)
-  const samePostOfId = posts.find((post) => post.id === id);
+  const samePostOfId = onePostData.data;
 
   if (!samePostOfId) {
     return <div className="text-center mt-10">Post not found</div>;
@@ -54,12 +58,12 @@ const BlogDetail = () => {
             <RichTextRender html={samePostOfId.body} />
           </p>
           <div className='flex flex-wrap gap-2 mt-6'>
-            {samePostOfId.tags.map((tag) => (
+            {samePostOfId.tags.map((tag:any,index:number) => (
               <span
-                key={tag}
+                key={index}
                 className='px-3 py-1 bg-gray-100 text-gray-600 rounded-full md:text-md text-xs'
               >
-                {tag}
+                {tag.name}
               </span>
             ))}
           </div>
@@ -73,9 +77,9 @@ const BlogDetail = () => {
           </h2>
 
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4'>
-            {posts
-              .filter((post) => post.id !== samePostOfId.id)
-              .map((post) => (
+            {postsData.data
+              .filter((post:any) => post.id !== onePostData?.data?.id)
+              .map((post:any) => (
                 <Link
                   to={`/blogs/${post.id}`}
                   key={post.id}

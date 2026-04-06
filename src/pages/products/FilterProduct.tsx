@@ -5,8 +5,29 @@ import { Button } from "@/components/ui/button"
 import { Controller, useForm } from "react-hook-form"
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import type { FC } from "react"
 
-const FilterProduct = () => {
+// 1. အတွင်းပိုင်း data အရင်သတ်မှတ်မယ်
+type Category = { id: string; name: string };
+type Type = { id: string; name: string };
+
+// 2. API က ပြန်လာတဲ့ structure အတိုင်း အတိအကျရေးမယ်
+interface CategoryTypeResponse {
+    message: string;
+    data: {
+        categories: Category[];
+        types: Type[];
+    };
+}
+
+// 3. Props အတွက် interface (Parent က ပို့ပေးမယ့် object)
+interface FilterProductProps {
+    categoryType: CategoryTypeResponse;
+    setSearchParams: (params: URLSearchParams) => void;
+}
+
+
+const FilterProduct: FC<FilterProductProps> = ({ categoryType, setSearchParams }) => {
     // defaultValues ကို Array အနေနဲ့ အရင်သတ်မှတ်ပေးရပါမယ်
     const filterSchema = z.object({
         categories: z.array(z.string()),
@@ -14,7 +35,7 @@ const FilterProduct = () => {
     })
     type FilterSchema = z.infer<typeof filterSchema>
 
-    const { control, handleSubmit,reset } = useForm<FilterSchema>({
+    const { control, handleSubmit, reset } = useForm<FilterSchema>({
         resolver: zodResolver(filterSchema),
         defaultValues: {
             categories: [],
@@ -23,8 +44,22 @@ const FilterProduct = () => {
     })
 
     const onSubmit = (data: FilterSchema) => {
-        console.log("Filter Data:", data) // အခုဆိုရင် ID array တွေ ထွက်လာပါလိမ့်မယ်
-        reset()
+
+        const params = new URLSearchParams();
+        if (data.categories.length > 0) {
+            params.set("categories", data.categories.join(","));
+        }else{
+            params.delete("categories");
+        }
+
+        if (data.types.length > 0) {
+            params.set("types", data.types.join(","));
+        }else{
+             params.delete("types");       
+        }
+
+        // setSearchParams ကို Object ပုံစံနဲ့ တိုက်ရိုက် ပို့ပေးလိုက်ပါ
+        setSearchParams(params);
     }
 
     return (
@@ -37,21 +72,21 @@ const FilterProduct = () => {
                     control={control}
                     render={({ field }) => (
                         <FieldGroup>
-                            {filterList.categories.map((category) => (
+                            {categoryType.data.categories.map((category) => (
                                 <Field key={category.id} orientation="horizontal" className="gap-3">
                                     <Checkbox
                                         id={`cat-${category.id}`}
-                                        checked={field.value?.includes(category.id)}
+                                        checked={field.value?.includes(String(category.id))}
                                         onCheckedChange={(checked) => {
                                             const updatedValue = checked
-                                                ? [...field.value, category.id]
-                                                : field.value.filter((val: string) => val !== category.id);
+                                                ? [...field.value, String(category.id)]
+                                                : field.value.filter((val: string) => val !== String(category.id));
                                             field.onChange(updatedValue);
                                         }}
                                         className='size-5 border-2 border-[#056152] data-[state=checked]:bg-[#056152] data-[state=checked]:text-white focus-visible:ring-[#056152]'
                                     />
                                     <FieldLabel htmlFor={`cat-${category.id}`} className="cursor-pointer">
-                                        {category.label}
+                                        {category.name.charAt(0).toUpperCase() + category.name.slice(1)}
                                     </FieldLabel>
                                 </Field>
                             ))}
@@ -68,21 +103,21 @@ const FilterProduct = () => {
                     control={control}
                     render={({ field }) => (
                         <FieldGroup>
-                            {filterList.types.map((type) => (
+                            {categoryType.data.types.map((type) => (
                                 <Field key={type.id} orientation="horizontal" className="gap-3">
                                     <Checkbox
                                         id={`type-${type.id}`}
-                                        checked={field.value?.includes(type.id)}
+                                        checked={field.value?.includes(String(type.id))}
                                         onCheckedChange={(checked) => {
                                             const updatedValue = checked
-                                                ? [...field.value, type.id]
-                                                : field.value.filter((val: string) => val !== type.id);
+                                                ? [...field.value, String(type.id)]
+                                                : field.value.filter((val: string) => val !== String(type.id));
                                             field.onChange(updatedValue);
                                         }}
                                         className='size-5 border-2 border-[#056152] data-[state=checked]:bg-[#056152] data-[state=checked]:text-white focus-visible:ring-[#056152]'
                                     />
                                     <FieldLabel htmlFor={`type-${type.id}`} className="cursor-pointer">
-                                        {type.label.charAt(0).toUpperCase() + type.label.slice(1)}
+                                        {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
                                     </FieldLabel>
                                 </Field>
                             ))}
