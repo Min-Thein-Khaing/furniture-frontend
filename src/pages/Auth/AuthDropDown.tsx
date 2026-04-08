@@ -76,7 +76,7 @@ const AuthDropDown = ({ users }: { users: user }) => {
                                 <span>Log out</span>
                             </Link> */}
                             <Form action="/logout" method="post" className="w-full ">
-                                <Button disabled={isSubmitting} type="submit" variant="ghost" className=''>
+                                <Button disabled={isSubmitting} type="submit" variant="ghost" className='w-full'>
                                     <LogOut className="mr-2 h-4 w-4 " />
                                     <span>{isSubmitting ? "Logging out..." : "Log out"}</span>
                                 </Button>

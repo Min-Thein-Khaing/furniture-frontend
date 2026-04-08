@@ -7,8 +7,21 @@ export const api = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials:true
+    withCredentials: true
 });
+
+//request interceptor for auth
+// api.interceptors.request.use(
+//     (config) => {
+//         const authStore = JSON.parse(localStorage.getItem("auth") || "{}");
+//         const token = authStore?.state?.token;
+//         if (token) {
+//             config.headers.Authorization = `Bearer ${token}`;
+//         }
+//         return config;
+//     },
+//     (error) => Promise.reject(error)
+// );
 
 //response interceptor
 api.interceptors.response.use(
@@ -27,5 +40,5 @@ export const authApi = axios.create({
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials:true
+    withCredentials: true
 });

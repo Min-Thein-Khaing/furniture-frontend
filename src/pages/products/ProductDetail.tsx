@@ -18,22 +18,20 @@ import type { Product } from '@/types'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { productQuery, proudctOneDetailQuery } from '@/api/query'
 
-export const productFormSchema = z.object({
+const productFormSchema = z.object({
     quantity: z.number().min(1),
 })
 
-export type ProductFormValues = z.infer<typeof productFormSchema>
+type ProductFormValues = z.infer<typeof productFormSchema>
 
 const ProductDetail = () => {
     const { id } = useParams()
-    const {data:productsData} = useSuspenseQuery(productQuery("limit=100"))
-    const {data:oneProductData} = useSuspenseQuery(proudctOneDetailQuery(Number(id)))
-    console.log("product many",productsData)
-    console.log("product one",oneProductData)
-    console.log("id",id)
+    const { data: productsData } = useSuspenseQuery(productQuery("limit=100"))
+    const { data: oneProductData } = useSuspenseQuery(proudctOneDetailQuery(Number(id)))
+    
+
 
     const [mainImage, setMainImage] = useState(oneProductData?.data?.images[0].path)
-    const [isFavorite, setIsFavorite] = useState(false)
 
     const form = useForm<ProductFormValues>({
         resolver: zodResolver(productFormSchema),
@@ -52,7 +50,7 @@ const ProductDetail = () => {
 
     // random show 4 product
     const relatedProducts = productsData?.data
-        .filter((p:any) => (p.id) !== Number(id) )
+        .filter((p: any) => (p.id) !== Number(id))
         .sort(() => 0.5 - Math.random())
         .slice(0, 4);
 
@@ -84,7 +82,7 @@ const ProductDetail = () => {
                     </div>
                     {/* Thumbnails */}
                     <div className='flex flex-col gap-4  pb-2 scrollbar-hide'>
-                        {oneProductData.data.images.map((img:any, index:number) => (
+                        {oneProductData.data.images.map((img: any, index: number) => (
                             <button
                                 key={index}
                                 onClick={() => setMainImage(img.path)}
@@ -100,8 +98,7 @@ const ProductDetail = () => {
                 </div>
 
                 {/* Info Section with integrated Form */}
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
+                <div
                     className='flex flex-col py-2'
                 >
                     <div className='mb-6'>
@@ -140,7 +137,7 @@ const ProductDetail = () => {
                                 </div>
                             </div>
                             <div className=''>
-                                <Addwhitlist productId={oneProductData.data.id} rating={oneProductData.data.rating} isFavourite={isFavorite} />
+                                <Addwhitlist productId={Number(oneProductData.data.id)} rating={oneProductData.data.rating} isFavorite={oneProductData.data.users.length > 0} />
                             </div>
                         </div>
 
@@ -197,7 +194,8 @@ const ProductDetail = () => {
                             Buy Now
                         </Button>
                         <Button
-                            type="submit"
+                            type="button"
+                            onClick={handleSubmit(onSubmit)}
                             variant="outline"
                             disabled={isOutOfStock || oneProductData.data.status === "INACTIVE"}
 
@@ -221,7 +219,7 @@ const ProductDetail = () => {
                             </div>
                         </div>
                     </div>
-                </form>
+                </div>
 
             </div>
 

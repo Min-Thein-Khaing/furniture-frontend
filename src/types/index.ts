@@ -22,6 +22,11 @@ export type Product = {
   images: ProductImage[]; // This MUST be an array
   categoryId: string;
   rating: number;
+  users: [
+    {
+      id: string;
+    }
+  ];
   inventory: number;
   status: string;
   discount: number;

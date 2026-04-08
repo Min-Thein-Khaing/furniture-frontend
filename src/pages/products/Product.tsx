@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react'
 import { useInfiniteQuery, useSuspenseQuery } from '@tanstack/react-query'
 import { categoryTypeQuery, productInfiniteQuery } from '@/api/query'
 import { useSearchParams } from 'react-router'
+import { useFilterStore } from '@/store/useFilterStore'
 
 const Product = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -29,28 +30,34 @@ const Product = () => {
         return () => query.removeEventListener("change", handler)
     }, [])
 
+    //1. is simple
+    // const [searchParams, setSearchParams] = useSearchParams();
+    // const rawCategories = searchParams.get("categories");
+    // const rawTypes = searchParams.get("types");
 
+    // const selectedCategory = rawCategories
+    //     ? decodeURIComponent(rawCategories)
+    //         .split(",")
+    //         .map((c) => c.trim())
+    //         .filter((c) => c !== "" && !isNaN(Number(c)))
+    //     : [];
+
+    // const selectedType = rawTypes
+    //     ? decodeURIComponent(rawTypes)
+    //         .split(",")
+    //         .map((t) => t.trim())
+    //         .filter((t) => t !== "" && !isNaN(Number(t)))
+    //     : [];
+
+    // const cat = selectedCategory.length > 0 ? selectedCategory.join(",") : null;
+    // const typ = selectedType.length > 0 ? selectedType.join(",") : null;
+
+    //2. global store
     const [searchParams, setSearchParams] = useSearchParams();
-    const rawCategories = searchParams.get("categories");
-    const rawTypes = searchParams.get("types");
+    const { categories, types } = useFilterStore();
 
-    const selectedCategory = rawCategories
-        ? decodeURIComponent(rawCategories)
-            .split(",")
-            .map((c) => c.trim())
-            .filter((c) => c !== "" && !isNaN(Number(c)))
-        : [];
-
-    const selectedType = rawTypes
-        ? decodeURIComponent(rawTypes)
-            .split(",")
-            .map((t) => t.trim())
-            .filter((t) => t !== "" && !isNaN(Number(t)))
-        : [];
-
-    const cat = selectedCategory.length > 0 ? selectedCategory.join(",") : null;
-    const typ = selectedType.length > 0 ? selectedType.join(",") : null;
-
+    const cat = categories.length > 0 ? categories.join(",") : null;
+    const typ = types.length > 0 ? types.join(",") : null;
     const { data: categoryType } = useSuspenseQuery(categoryTypeQuery())
 
     const {
@@ -64,7 +71,25 @@ const Product = () => {
 
     // data?.pages[x].data လို့ ပြန်ထားရင် page.data ကို ယူရပါမယ်
     const allProducts = data?.pages.flatMap((page) => page.data) || []
-
+    useEffect(() => {
+        let shortUrl = false
+        const param = new URLSearchParams(searchParams);
+        if (categories.length > 0) {
+            param.set("categories", categories.join(","));
+            shortUrl = true
+        } else {
+            param.delete("categories");
+        }
+        if (types.length > 0) {
+            param.set("types", types.join(","));
+            shortUrl = true
+        } else {
+            param.delete("types");
+        }
+        if (shortUrl) {
+            setSearchParams(param, { replace: true });
+        }
+    }, [categories, types])
     return (
         <> {/* 1. Parent Fragment အုပ်ပေးရပါမယ် */}
             {status === "pending" ? (
@@ -125,7 +150,7 @@ const Product = () => {
                                     disabled={isFetchingNextPage}
                                     className="bg-[#056152]"
                                 >
-                                    {isFetchingNextPage ? 'Loading more...' : 'Load More'}
+                                    {isFetchingNextPage ? 'Loading more...' : hasNextPage ? 'Load More' : 'No more products'}
                                 </Button>
                             </div>
 

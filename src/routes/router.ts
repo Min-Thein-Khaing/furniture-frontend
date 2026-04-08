@@ -4,7 +4,7 @@ import RouteLayout from "@/pages/RouteLayout";
 import { confirmLoader, homeLoader, loginLoader, onePostLoader, otpLoader, postInfiniteLoader, productInfiniteLoader, productOneDetailLoader } from "@/router/loader";
 import { createBrowserRouter } from "react-router";
 import {redirect} from "react-router-dom"
-import { confirmAction, loginAction, logoutAction, otpAction, registerAction } from "@/router/action";
+import { confirmAction, favoriteAction, loginAction, logoutAction, otpAction, registerAction } from "@/router/action";
 import AuthLayout from "@/pages/Auth/AuthLayout";
 import { postInfiniteQuery } from '@/api/query';
 
@@ -91,6 +91,7 @@ export const router = createBrowserRouter([
           {
             path: ":id",
             loader:productOneDetailLoader,
+            action:favoriteAction,
             lazy: async () => {
               const { default: ProductDetail } =
                 await import("@/pages/products/ProductDetail");

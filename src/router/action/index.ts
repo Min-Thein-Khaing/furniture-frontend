@@ -1,4 +1,5 @@
 import { api, authApi } from "@/api";
+import queryClient from "@/api/query";
 import { useAuthStore } from "@/store/useAuthStore";
 import { AxiosError } from "axios";
 import { type ActionFunctionArgs } from "react-router";
@@ -63,7 +64,7 @@ export const registerAction = async ({ request }: ActionFunctionArgs) => {
             // Adjust these depending on what you see in the console (e.g., res.data.verifyToken)
             const phone = res.data?.data?.phone || res.data?.phone || credentials.phone;
             // ✨ Extract rememberToken based on your console log!
-            const token =  res.data?.data?.rememberToken
+            const token = res.data?.data?.rememberToken
 
             console.log("Extracted Phone:", phone, "Extracted Token:", token);
 
@@ -104,10 +105,10 @@ export const otpAction = async ({ request }: ActionFunctionArgs) => {
             toast.success("Otp successful", { position: "top-right" });
 
             const phone = res.data?.data?.phone || res.data?.phone || authStore.phone;
-            const token = 
-    res.data?.data?.rememberToken || 
-    
-    authStore.token;
+            const token =
+                res.data?.data?.rememberToken ||
+
+                authStore.token;
 
             authStore.setAuth(phone as string, token as string, "confirm");
 
@@ -158,5 +159,37 @@ export const confirmAction = async ({ request }: ActionFunctionArgs) => {
         return {
             message: errorMessage,
         }
+    }
+}
+export const favoriteAction = async ({ request, params }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    
+    // params.id မရှိရင် error တက်နိုင်လို့ check လုပ်ထားသင့်ပါတယ်
+    if (!params.id) return { success: false, message: "Product ID missing" };
+
+    const data = {
+        productId: Number(params.id),
+        // Frontend name နဲ့ ကိုက်အောင် ပြင်ထားပါတယ်
+        isFavorite: formData.get("favorite") === "true",
+    };
+
+    try {
+        const res = await api.patch("/user/products/toggle", data);
+        if (res.status === 200) {
+            await queryClient.invalidateQueries({ queryKey: ["products", "detail", Number(params.id)] });
+            toast.success("Favorite updated successfully", { position: "top-right" });
+            return { success: true };
+        }
+        return { success: false, message: "Update failed" };
+    } catch (error) {
+        let errorMessage = "Favorite update failed";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return {
+            success: false,
+            message: errorMessage,
+        };
     }
 }

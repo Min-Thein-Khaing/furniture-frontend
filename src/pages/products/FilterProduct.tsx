@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form"
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { FC } from "react"
+import { useFilterStore } from "@/store/useFilterStore"
 
 // 1. အတွင်းပိုင်း data အရင်သတ်မှတ်မယ်
 type Category = { id: string; name: string };
@@ -35,30 +36,51 @@ const FilterProduct: FC<FilterProductProps> = ({ categoryType, setSearchParams }
     })
     type FilterSchema = z.infer<typeof filterSchema>
 
+    const { setCategories, setTypes, categories: storedCategories, types: storedTypes } = useFilterStore();
+
     const { control, handleSubmit, reset } = useForm<FilterSchema>({
         resolver: zodResolver(filterSchema),
         defaultValues: {
-            categories: [],
-            types: [],
+            categories: storedCategories,
+            types: storedTypes,
         },
     })
-
     const onSubmit = (data: FilterSchema) => {
+        //1. is simple
+        // const params = new URLSearchParams();
+        // if (data.categories.length > 0) {
+        //     params.set("categories", data.categories.join(","));
+        // }else{
+        //     params.delete("categories");
+        // }
+
+        // if (data.types.length > 0) {
+        //     params.set("types", data.types.join(","));
+        // }else{
+        //      params.delete("types");       
+        // }
+
+        // // setSearchParams ကို Object ပုံစံနဲ့ တိုက်ရိုက် ပို့ပေးလိုက်ပါ
+        // setSearchParams(params);
+
+
+        //2. global store
+        setCategories(data.categories);
+        setTypes(data.types);
 
         const params = new URLSearchParams();
         if (data.categories.length > 0) {
             params.set("categories", data.categories.join(","));
-        }else{
+        } else {
             params.delete("categories");
         }
 
         if (data.types.length > 0) {
             params.set("types", data.types.join(","));
-        }else{
-             params.delete("types");       
+        } else {
+            params.delete("types");
         }
 
-        // setSearchParams ကို Object ပုံစံနဲ့ တိုက်ရိုက် ပို့ပေးလိုက်ပါ
         setSearchParams(params);
     }
 
