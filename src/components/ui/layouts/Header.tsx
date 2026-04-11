@@ -6,8 +6,10 @@ import AuthDropDown from "@/pages/Auth/AuthDropDown";
 import { User } from "@/data/images/user";
 import CardSheet from "@/pages/products/CardSheet";
 import ProgressBar from "@/components/progressBar";
+import { useCartStore } from "@/store/useCartStore";
 
 function Header() {
+  
   return (
     <header className="w-full sticky z-10 top-0 bg-background border-b">
         <ProgressBar />

@@ -15,33 +15,19 @@ import { cartItems as initialItems } from '@/data/images/carts' // Assuming this
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from "@/components/ui/scroll-area" 
 import CartItems from './CartItems'
+import { useCartStore } from '@/store/useCartStore'
 
 const CardSheet = () => {
-    // Note: For a real app, you'd use a Context or State to manage the cart
-    const [items, setItems] = React.useState(initialItems)
-
-    const updateQuantity = (id: string | number, delta: number) => {
-        setItems(prev => prev.map(item => 
-            item.id === id 
-                ? { ...item, quantity: Math.min(100, Math.max(1, item.quantity + delta)) }
-                : item
-        ))
-    }
-
-    const removeItem = (id: string | number) => {
-        setItems(prev => prev.filter(item => item.id !== id))
-    }
-
-    const total = items.reduce((acc, item) => acc + (item.price * item.quantity), 0)
+    const {items, updateQuantity, removeItem, getTotalPrice} = useCartStore();
 
     return (
         <Sheet>
             <SheetTrigger asChild >
                 <Button variant="outline" className='relative'>
                     <ShoppingCart size={20} />
-                    <span className='absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold'>
+                    {items.length > 0 ? <span className='absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold'>
                         {items.length}
-                    </span>
+                    </span> : null}
                 </Button>
             </SheetTrigger>
             
@@ -60,7 +46,7 @@ const CardSheet = () => {
                     </div>
                 ) : (
                     /* 2. flex-1 and min-h-0 allow ScrollArea to take only the available middle space and scroll correctly */
-                    <CartItems items={items} updateQuantity={updateQuantity} removeItem={removeItem} />
+                    <CartItems  />
                 )}
 
                 {/* 3. Footer is pinned to the bottom because of flex-col on container */}
@@ -78,7 +64,7 @@ const CardSheet = () => {
                             <Separator className="my-2" />
                             <div className='flex justify-between font-bold text-lg'>
                                 <span>Total</span>
-                                <span>${total.toFixed(2)}</span>
+                                <span>${getTotalPrice()}</span>
                             </div>
                         </div>
                         <Button className='w-full bg-[#056152] hover:bg-[#044d41] py-6 text-base'>

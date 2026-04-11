@@ -18,7 +18,7 @@ export type Product = {
   id: number;   // Changed from string to number based on your data output
   name: string;
   description: string;
-  price: string; // Note: Your data shows "250" as a string in quotes
+  price: number; // Note: Your data shows "250" as a string in quotes
   images: ProductImage[]; // This MUST be an array
   categoryId: string;
   rating: number;

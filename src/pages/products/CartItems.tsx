@@ -2,28 +2,25 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import React from 'react'
+import { useCartStore } from '@/store/useCartStore'
 
 
-interface CartItemsProps {
-    items: any[]
-    updateQuantity: (id: string, quantity: number) => void
-    removeItem: (id: string) => void
-}
-const CartItems = ({items ,updateQuantity,removeItem}:CartItemsProps) => {
+const CartItems = () => {
+    const {items, updateQuantity, removeItem} = useCartStore();
   return (
     <ScrollArea className='flex-1 w-full min-h-0'>
                         <div className="space-y-6 px-6 ">
                             {items.map((item) => (
                                 <div key={item.id} className="flex items-center gap-4">
                                     <img 
-                                        src={item.image.url} 
+                                        src={item.image.path} 
                                         alt={item.name} 
                                         className="w-16 h-16 rounded-md object-cover bg-muted" 
                                     />
                                     <div className="flex-1 min-w-0">
                                         <h3 className="font-medium leading-none truncate">{item.name}</h3>
-                                        <p className="text-sm text-muted-foreground mt-1">{item.category}</p>
-                                        <p className="text-sm font-semibold mt-1">${item.price}</p>
+                                        {/* <p className="text-sm text-muted-foreground mt-1">{item.category}</p> */}
+                                        <p className="text-sm font-semibold mt-1">${item.price} <span> x </span>{item.quantity} = ${item.price * item.quantity}</p>
                                     </div>
                                     
                                     <div className="flex items-center gap-2 border rounded-md p-1">

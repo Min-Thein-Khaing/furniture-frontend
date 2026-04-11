@@ -163,7 +163,7 @@ export const confirmAction = async ({ request }: ActionFunctionArgs) => {
 }
 export const favoriteAction = async ({ request, params }: ActionFunctionArgs) => {
     const formData = await request.formData();
-    
+
     // params.id မရှိရင် error တက်နိုင်လို့ check လုပ်ထားသင့်ပါတယ်
     if (!params.id) return { success: false, message: "Product ID missing" };
 
@@ -175,6 +175,37 @@ export const favoriteAction = async ({ request, params }: ActionFunctionArgs) =>
 
     try {
         const res = await api.patch("/user/products/toggle", data);
+        if (res.status === 200) {
+            await queryClient.invalidateQueries({ queryKey: ["products", "detail", Number(params.id)] });
+            toast.success("Favorite updated successfully", { position: "top-right" });
+            return { success: true };
+        }
+        return { success: false, message: "Update failed" };
+    } catch (error) {
+        let errorMessage = "Favorite update failed";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return {
+            success: false,
+            message: errorMessage,
+        };
+    }
+}
+
+export const productQuantityUpdateAction = async ({ request, params }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+
+    // params.id မရှိရင် error တက်နိုင်လို့ check လုပ်ထားသင့်ပါတယ်
+    if (!params.id) return { success: false, message: "Product ID missing" };
+
+    const data = {
+        quantity: formData.get("quantity"),
+    };
+
+    try {
+        const res = await api.patch(`/user/product/${params.id}`, data);
         if (res.status === 200) {
             await queryClient.invalidateQueries({ queryKey: ["products", "detail", Number(params.id)] });
             toast.success("Favorite updated successfully", { position: "top-right" });

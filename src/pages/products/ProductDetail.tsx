@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Heart, Minus, Plus, ShoppingCart, Star } from 'lucide-react'
-import { Link, useLoaderData, useParams } from 'react-router'
+import { Link, useLoaderData, useParams, useSubmit } from 'react-router'
 import { Separator } from '@/components/ui/separator'
 import Rating from './Rating'
 import { products } from '@/data/images/products'
 import { formatCurrency, cn } from '@/lib/utils'
-import Addwhitlist from './Addwhitlist'
+// import Addwhitlist from './Addwhitlist'
+import Addwhitlist from './TanstackOptimistic'
+
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,6 +19,7 @@ import { ProductCard } from '@/components/products/ProductCard'
 import type { Product } from '@/types'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { productQuery, proudctOneDetailQuery } from '@/api/query'
+import { useCartStore } from '@/store/useCartStore'
 
 const productFormSchema = z.object({
     quantity: z.number().min(1),
@@ -29,7 +32,16 @@ const ProductDetail = () => {
     const { data: productsData } = useSuspenseQuery(productQuery("limit=100"))
     const { data: oneProductData } = useSuspenseQuery(proudctOneDetailQuery(Number(id)))
     
-
+ const { addItem} = useCartStore();
+    const handleAddToCart = (product: Product) => {
+        addItem({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.images[0],
+            quantity: 1,
+        });
+    }
 
     const [mainImage, setMainImage] = useState(oneProductData?.data?.images[0].path)
 
@@ -39,12 +51,12 @@ const ProductDetail = () => {
             quantity: 1,
         },
     })
-
+    const submit = useSubmit()
     const { control, setValue, watch, handleSubmit, formState: { errors }, reset } = form
     const quantity = watch('quantity')
     const onSubmit = (data: ProductFormValues) => {
-        console.log(data)
-        toast.success('Product added to cart', { position: 'top-right' })
+        submit(data, { method: 'post', action: `/products/${id}` })
+        toast.success('Product bought', { position: 'top-right' })
         reset()
     }
 
@@ -70,7 +82,7 @@ const ProductDetail = () => {
                 Back to All Products
             </Link>
 
-            <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 mx-5'>
+            <form onSubmit={handleSubmit(onSubmit)} className='grid grid-cols-1 lg:grid-cols-2 gap-12 mx-5'>
                 {/* Images Section */}
                 <div className='flex gap-4'>
                     <div className='aspect-square rounded-2xl overflow-hidden bg-gray-50 border border-gray-100 flex items-center justify-center p-4 lg:p-8'>
@@ -187,7 +199,8 @@ const ProductDetail = () => {
                     {/* Action Buttons */}
                     <div className='flex flex-col sm:flex-row gap-4'>
                         <Button
-                            type="button"
+                            type="submit"
+                            
                             disabled={isOutOfStock || oneProductData.data.status === "INACTIVE"}
                             className='flex-1 h-16 text-lg font-bold bg-[#056152] hover:bg-[#044c41] rounded-xl shadow-lg shadow-[#056152]/10 transition-all active:scale-95'
                         >
@@ -195,7 +208,7 @@ const ProductDetail = () => {
                         </Button>
                         <Button
                             type="button"
-                            onClick={handleSubmit(onSubmit)}
+                            onClick={() => handleAddToCart(oneProductData.data)}
                             variant="outline"
                             disabled={isOutOfStock || oneProductData.data.status === "INACTIVE"}
 
@@ -221,7 +234,7 @@ const ProductDetail = () => {
                     </div>
                 </div>
 
-            </div>
+            </form>
 
             {/* Popular Products Section */}
             <div className='mt-20 border-t pt-20'>
