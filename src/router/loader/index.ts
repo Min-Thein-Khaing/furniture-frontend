@@ -60,10 +60,31 @@ export const otpLoader = async () => {
 
     return null;
 };
+export const verifyOtpLoader = async() => {
+    const authState = useAuthStore.getState();
+    if(authState.status !== "verify"){
+        return redirect("/register")
+    }
+    return null;
+}
+export const resetOtpLoader = async() => {
+    const authState = useAuthStore.getState();
+    if(authState.status !== "verify"){
+        return redirect("/reset")
+    }
+    return null;
+}
 export const confirmLoader = async() => {
     const authState = useAuthStore.getState();
     if(authState.status !== "confirm"){
         return redirect("/register")
+    }
+    return null;
+}
+export const resetConfirmLoader = async() => {
+    const authState = useAuthStore.getState();
+    if(authState.status !== "reset"){
+        return redirect("/reset")
     }
     return null;
 }

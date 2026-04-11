@@ -1,10 +1,10 @@
 import { SignupForm } from '@/components/Auth/components/signup-form';
 import NotFound from "@/pages/404";
 import RouteLayout from "@/pages/RouteLayout";
-import { confirmLoader, homeLoader, loginLoader, onePostLoader, otpLoader, postInfiniteLoader, productInfiniteLoader, productOneDetailLoader } from "@/router/loader";
+import { confirmLoader, homeLoader, loginLoader, onePostLoader, otpLoader, postInfiniteLoader, productInfiniteLoader, productOneDetailLoader, resetConfirmLoader, resetOtpLoader } from "@/router/loader";
 import { createBrowserRouter } from "react-router";
 import { redirect } from "react-router-dom"
-import { confirmAction, loginAction, logoutAction, otpAction, registerAction } from "@/router/action";
+import { changePasswordAction, confirmAction, favoriteAction, loginAction, logoutAction, otpAction, productQuantityUpdateAction, registerAction, resetOtpAction, resetPasswordConfirmAction, resetRequestAction } from "@/router/action";
 import AuthLayout from "@/pages/Auth/AuthLayout";
 import { postInfiniteQuery } from '@/api/query';
 
@@ -46,6 +46,38 @@ export const router = createBrowserRouter([
         lazy: async () => {
           const { default: ConfirmPassword } = await import("@/pages/Auth/ConfirmPassword");
           return { Component: ConfirmPassword };
+        },
+      }
+    ],
+  },
+  {
+    path: "/reset",
+    Component: AuthLayout,
+    children: [
+      {
+        index: true,
+        action: resetRequestAction,
+        lazy: async () => {
+          const { default: ResetPassword } = await import("@/pages/Auth/ResetPassword");
+          return { Component: ResetPassword };
+        },
+      },
+      {
+        path: "verify-otp",
+        loader: resetOtpLoader,
+        action: resetOtpAction,
+        lazy: async () => {
+          const { default: ResetOtp } = await import("@/pages/Auth/ResetOtp");
+          return { Component: ResetOtp };
+        },
+      },
+      {
+        path: "new-password-confirm",
+        loader: resetConfirmLoader,
+        action: resetPasswordConfirmAction,
+        lazy: async () => {
+          const { default: NewPassword } = await import("@/pages/Auth/NewPassword");
+          return { Component: NewPassword };
         },
       }
     ],
@@ -99,6 +131,14 @@ export const router = createBrowserRouter([
             },
           },
         ],
+      },
+      {
+        path: "change-password",
+        action: changePasswordAction,
+        lazy: async () => {
+          const { default: ChangePassword } = await import("@/pages/Auth/ChangePassword");
+          return { Component: ChangePassword };
+        },
       },
       {
         path: "blogs",

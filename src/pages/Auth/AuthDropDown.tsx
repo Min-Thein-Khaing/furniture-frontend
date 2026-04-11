@@ -59,6 +59,14 @@ const AuthDropDown = ({ users }: { users: user }) => {
                         </DropdownMenuItem>
 
                         <DropdownMenuItem asChild>
+                            <Link to="/change-password">
+                                <User className="mr-2 h-4 w-4" />
+                                <span>Change Password</span>
+                                <DropdownMenuShortcut>⇧⌘K</DropdownMenuShortcut>
+                            </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild>
                             <Link to="/settings">
                                 <Settings className="mr-2 h-4 w-4" />
                                 <span>Settings</span>

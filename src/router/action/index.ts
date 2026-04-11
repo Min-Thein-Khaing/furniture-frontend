@@ -64,8 +64,9 @@ export const registerAction = async ({ request }: ActionFunctionArgs) => {
             // Adjust these depending on what you see in the console (e.g., res.data.verifyToken)
             const phone = res.data?.data?.phone || res.data?.phone || credentials.phone;
             // ✨ Extract rememberToken based on your console log!
-            const token = res.data?.data?.rememberToken
+            const token = res.data?.data?.rememberToken || res.data?.rememberToken || res.data?.token || res.data?.data?.token;
 
+            console.log("Registration Response:", res.data);
             console.log("Extracted Phone:", phone, "Extracted Token:", token);
 
             authStore.setAuth(phone as string, token as string, "otp");
@@ -89,7 +90,6 @@ export const registerAction = async ({ request }: ActionFunctionArgs) => {
 export const otpAction = async ({ request }: ActionFunctionArgs) => {
     const authStore = useAuthStore.getState();
     const formData = await request.formData();
-
     // We send verifyToken as you requested, using the token from our store
     const credentials = {
         phone: authStore.phone,
@@ -105,10 +105,8 @@ export const otpAction = async ({ request }: ActionFunctionArgs) => {
             toast.success("Otp successful", { position: "top-right" });
 
             const phone = res.data?.data?.phone || res.data?.phone || authStore.phone;
-            const token =
-                res.data?.data?.rememberToken ||
-
-                authStore.token;
+            const token = res.data?.data?.rememberToken || res.data?.rememberToken || res.data?.data?.verifyToken || res.data?.verifyToken || res.data?.token || res.data?.data?.token || authStore.token;
+            console.log("OTP Verification Response Data:", res.data);
 
             authStore.setAuth(phone as string, token as string, "confirm");
 
@@ -220,6 +218,150 @@ export const productQuantityUpdateAction = async ({ request, params }: ActionFun
         }
         return {
             success: false,
+            message: errorMessage,
+        };
+    }
+}
+
+export const resetRequestAction = async ({ request }: ActionFunctionArgs) => {
+    const authStore = useAuthStore.getState();
+    const formData = await request.formData();
+    const credentials = { phone: formData.get("phone") };
+
+    try {
+        const res = await authApi.post("/forget-password", credentials);
+        console.log(res.data.data)
+        if (res.data && (res.status === 200 || res.status === 201)) {
+            console.log("Forget Password Response:", res.data);
+            const phone = res.data?.data?.phone || res.data?.phone || credentials.phone;
+            const token = res.data?.data?.rememberToken || res.data?.rememberToken || res.data?.token || res.data?.data?.token;
+
+            console.log("Extracted Phone:", phone, "Extracted Token:", token);
+
+            authStore.setAuth(phone as string, token as string, "verify");
+
+            toast.success('Reset code sent! Redirecting to OTP...');
+            return redirect("/reset/verify-otp");
+        }
+
+        return { error: "Reset request failed: Unexpected response" };
+
+    } catch (error: any) {
+        let errorMessage = "Something went wrong";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage);
+        }
+        return { error: errorMessage };
+    }
+};
+
+export const resetOtpAction = async ({ request }: ActionFunctionArgs) => {
+    const authStore = useAuthStore.getState();
+    const formData = await request.formData();
+
+    const credentials = {
+        phone: authStore.phone,
+        otp: formData.get("otp"),
+        rememberToken: authStore.token
+    };
+    
+    console.log("Sending Reset OTP Credentials:", credentials);
+
+    try {
+        const res = await authApi.post("/verify", credentials)
+
+        if (res.status === 200 || res.status === 201) {
+            toast.success("Otp verified successfully", { position: "top-right" });
+
+            const phone = res.data?.data?.phone || res.data?.phone || authStore.phone;
+            const token = res.data?.data?.rememberToken || res.data?.rememberToken || res.data?.data?.verifyToken || res.data?.verifyToken || res.data?.token || res.data?.data?.token || authStore.token;
+            console.log("OTP Success Data:", res.data);
+
+            authStore.setAuth(phone as string, token as string, "reset");
+
+            return redirect("/reset/new-password-confirm");
+        }
+
+        toast.error("Otp failed", { position: "top-right" });
+        return { message: "Otp failed" };
+
+    } catch (error) {
+        let errorMessage = "otp failed";
+        console.error("Full OTP Error:", error);
+        if (error instanceof AxiosError) {
+            console.log("Backend Validation Errors:", error.response?.data);
+            errorMessage = error.response?.data?.message || errorMessage;
+            
+            // If there are specific field errors, log them
+            if (error.response?.data?.errors) {
+                console.log("Specific Field Errors:", error.response.data.errors);
+            }
+            
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return { message: errorMessage };
+    }
+};
+
+export const resetPasswordConfirmAction = async ({ request }: ActionFunctionArgs) => {
+    const authStore = useAuthStore.getState();
+    const formData = await request.formData();
+    const credentials = {
+        phone: authStore.phone,
+        password: formData.get("password"),
+        rememberToken: authStore.token
+    };
+    console.log(credentials)
+
+    try {
+        const res = await authApi.post("/reset-password", credentials)
+        console.log("Reset Password Response:", res.data);
+        toast.success("Password reset successfully", { position: "top-right" });
+        authStore.clearAuth();
+        return redirect("/login");
+    } catch (error) {
+        let errorMessage = "Password reset failed";
+        console.error("Reset Password Error:", error);
+        if (error instanceof AxiosError) {
+            console.log("Reset Password Error Details:", error.response?.data);
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return { message: errorMessage };
+    }
+}
+
+export const changePasswordAction = async ({ request }: ActionFunctionArgs) => {
+    const formData = await request.formData();
+    const data = {
+        oldPassword: formData.get("oldPassword"),
+        password: formData.get("password"),
+    };
+
+    try {
+        const res = await api.post("/change-password", data);
+        if (res.status === 200) {
+            toast.success(res.data.message || "Password changed successfully", { position: "top-right" });
+
+            await api.post("/logout").catch(() => {
+                
+            });
+
+            const authStore = useAuthStore.getState();
+            authStore.clearAuth();
+
+            return redirect("/login");
+        }
+        return { error: true, message: "Failed to change password" };
+    } catch (error) {
+        let errorMessage = "Password change failed";
+        if (error instanceof AxiosError) {
+            errorMessage = error.response?.data?.message || errorMessage;
+            toast.error(errorMessage, { position: "top-right" });
+        }
+        return {
+            error: true,
             message: errorMessage,
         };
     }
